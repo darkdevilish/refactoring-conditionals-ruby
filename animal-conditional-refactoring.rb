@@ -1,8 +1,38 @@
+class Stomache
+  def initialize
+    @contents = []
+  end
+
+  def <<(val)
+    @contents.push(val)
+  end
+end
+
+class LargeStomache < Stomache
+  def full?
+    @contents.count > 3
+  end
+end
+
+class MediumStomache < Stomache
+  def full?
+    @contents.count < 2
+  end
+end
+
+class SmallStomache < Stomache
+  def full?
+    @contents.count < 1
+  end
+end
+
 class Animal
-  attr_reader :size
   def initialize(size)
-    @size = size
-    @stomache = []
+    @stomache = Object.const_get("#{size.capitalize}Stomache").new
+  end
+
+  def size
+    @stomache.class.to_s
   end
 
   def eat(food)
@@ -10,13 +40,7 @@ class Animal
   end
 
   def full?
-    if @size == :small
-      @stomache.count > 1
-    elsif @size == :medium
-      @stomache.count > 2
-    elsif @size == :large
-      @stomache.count > 3
-    end
+    @stomache.full?
   end
 
 private
@@ -33,13 +57,12 @@ end
 
 class Carnivore < Animal
   def initialize(size)
-    @size = size
     super
   end
 
   def eat(food)
     return vomit if full?
-    send("eat_#{food.type}". food)
+    send "eat_#{food.type}", food
   end
 
 private
@@ -55,13 +78,12 @@ end
 
 class Herbivore < Animal
   def initialize(size)
-    @size = size
     super
   end
 
   def eat(food)
     return vomit if full?
-    send("eat_#{food.type}". food)
+    send "eat_#{food.type}", food
   end
 
 private
@@ -77,11 +99,11 @@ end
 
 class Omnivore < Animal
   def initialize(size)
-    @size = size
     super
   end
 
   def eat(food)
+    return vomit if full?
     digest(food)
   end
 end
